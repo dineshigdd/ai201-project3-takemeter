@@ -214,6 +214,7 @@ Fine-Tuning Delta: $-0.031$ (The zero-shot baseline outperformed the fine-tuned 
 | **Macro Avg** | 0.72 | 0.69 | 0.68 | 32 |
 | **Weighted Avg** | 0.72 | 0.69 | 0.68 | 32 |
 
+
 ## Evaluation Report and Error Analysis
 
 ### Performance Metrics & Comparative Analysis
@@ -240,24 +241,24 @@ The table below provides a detailed comparison of the fine-tuned model (DistilBE
 | **critique** | 1 | 1 | **9** |
 
 
-### Qualitative Error Analysis
 
-To understand the decision boundaries and identify where the fine-tuned model falters, I examine three specific misclassifications from the test set:
+### Automated Error Analysis & Verification Methodology
 
-#### Example 1: True Label `appreciation` $\rightarrow$ Predicted As `criticism`
-* **Sample Text:** *"My favorite Comfort Eagle song is definitely the title track. I like deeper, growly, darker sounds, though, so the guitar throughout scratches that itch for me. The lyrics are great, and that sitar/ba..."*
-* **Model Confidence:** 0.45
-* **Root Cause Analysis:** The author uses words that carry traditionally negative text signatures in general corpora (e.g., *"growly"*, *"darker"*). Because our training dataset is small ($N=144$), DistilBERT struggles to understand that in a musical context, these descriptors indicate positive aesthetic traits rather than complaints. 
+To ensure a rigorous and unbiased evaluation of the fine-tuned model, the error analysis process was structured as a collaborative, two-stage pipeline combining automated AI pattern recognition with manual human verification.
 
-#### Example 2: True Label `appreciation` $\rightarrow$ Predicted As `criticism`
-* **Sample Text:** *"They’re worth listening to for the drumming alone even the new shit and just because you’ve heard Everlong a billion times don’t pretend like that single isn’t pure altrock gold."*
-* **Model Confidence:** 0.41
-* **Root Cause Analysis:** This text relies heavily on defensive vocabulary and colloquial profanity (*"shit"*, *"don't pretend"*). While a large language model like Llama 70B can seamlessly interpret the colloquial synthesis of *"pure altrock gold"*, DistilBERT gets caught on the aggressive surface tokens and misclassifies the emotional valence as hostile criticism.
+#### 1. The Automated AI Analysis Plan
+Rather than relying solely on individual guesswork, all 10 misclassified instances from the test set evaluation were compiled into a structured log containing the raw text data, the true target label, and the model's incorrect prediction. This compiled error dataset was passed to an LLM with a dedicated diagnostic prompt. 
 
-#### Example 3: True Label `criticism` $\rightarrow$ Predicted As `critique`
-* **Sample Text:** *"I think humans thrive in small communities. I think fame, hierarchy, and commodification destroy communities. I think social media exacerbates fame, hierarchy, and commodification through the gamifica..."*
-* **Model Confidence:** 0.39
-* **Root Cause Analysis:** The text adopts a highly structured, repetitive formatting layout (*"I think... I think... I think..."*). The model mistakes this formal, systematic sentence construction for objective, evidence-based academic prose (`critique`), failing to recognize that the core underlying sentiment is an opinionated grievance targeting an industry trend (`criticism`).
+The AI was instructed to bypass generic observations and systematically scan the text profiles for the following concrete linguistic and structural anomalies:
+* **Contextual Lexical Inversion:** Pinpointing instances where sub-cultural communities or music fans utilize aggressive, intense, or traditionally "negative" vocabulary (e.g., *"growly"*, *"messy"*, *"shit"*) to express high praise.
+* **Syntactic Shortcuts:** Detecting whether the model over-indexes on clean structural layouts (like repetitive parallel sentence constructions) as a false proxy for objective analysis.
+* **Vague or Mixed Sentiment:** Highlighting rows where an author blends emotional praise and structural criticism closely together within the same short paragraph.
+
+#### 2. Human Review & Verification Strategy
+Automated language models are excellent at finding surface trends, but they can easily hallucinate patterns or misinterpret the true intent of a community post. To guarantee the integrity of this report, a strict manual verification protocol was applied to the AI's findings:
+1.  **Ground-Truth Grounding:** Every failure pattern identified by the AI was cross-referenced directly back to the raw row outputs in the notebook to ensure the trend was mathematically supported by multiple examples.
+2.  **Boundary Validation:** For each suspected pattern, the true label definitions established in our project planning phase were re-examined to verify if the text truly sat near a difficult classification boundary or if the model suffered a genuine systemic blind spot. 
+3.  **Confidence Check:** The model's prediction probability scores were analyzed alongside the text to differentiate between areas where the model was completely fooled versus areas where it was simply experiencing a low-confidence split decision.
 
 ## Model Reflection: Performance vs. Deployment Targets
 
@@ -300,6 +301,25 @@ Predicted: critique  (confidence: 0.39)
 Text:      I’ve noticed that when I read interviews with cartoonists and poets, they tend to answer questions in a straightforward, relatable manner—like someone you would meet in everyday life. They don't seem ...
 True:      criticism
 Predicted: critique  (confidence: 0.43)
+```
+### Qualitative Error Analysis
+
+To understand the decision boundaries and identify where the fine-tuned model falters, I examine three specific misclassifications from the test set:
+
+#### Example 1: True Label `appreciation` $\rightarrow$ Predicted As `criticism`
+* **Sample Text:** *"My favorite Comfort Eagle song is definitely the title track. I like deeper, growly, darker sounds, though, so the guitar throughout scratches that itch for me. The lyrics are great, and that sitar/ba..."*
+* **Model Confidence:** 0.45
+* **Root Cause Analysis:** The author uses words that carry traditionally negative text signatures in general corpora (e.g., *"growly"*, *"darker"*). Because our training dataset is small ($N=144$), DistilBERT struggles to understand that in a musical context, these descriptors indicate positive aesthetic traits rather than complaints. 
+
+#### Example 2: True Label `appreciation` $\rightarrow$ Predicted As `criticism`
+* **Sample Text:** *"They’re worth listening to for the drumming alone even the new shit and just because you’ve heard Everlong a billion times don’t pretend like that single isn’t pure altrock gold."*
+* **Model Confidence:** 0.41
+* **Root Cause Analysis:** This text relies heavily on defensive vocabulary and colloquial profanity (*"shit"*, *"don't pretend"*). While a large language model like Llama 70B can seamlessly interpret the colloquial synthesis of *"pure altrock gold"*, DistilBERT gets caught on the aggressive surface tokens and misclassifies the emotional valence as hostile criticism.
+
+#### Example 3: True Label `criticism` $\rightarrow$ Predicted As `critique`
+* **Sample Text:** *"I think humans thrive in small communities. I think fame, hierarchy, and commodification destroy communities. I think social media exacerbates fame, hierarchy, and commodification through the gamifica..."*
+* **Model Confidence:** 0.39
+* **Root Cause Analysis:** The text adopts a highly structured, repetitive formatting layout (*"I think... I think... I think..."*). The model mistakes this formal, systematic sentence construction for objective, evidence-based academic prose (`critique`), failing to recognize that the core underlying sentiment is an opinionated grievance targeting an industry trend (`criticism`).
 
 #### Deployment Summary
 The model is not yet ready for production deployment. While it meets our baseline accuracy goal and easily flags structured analytical essays, it cannot be trusted in a live community moderation tool until we stabilize the appreciation boundary and get its score up to our minimum 0.65 requirement.
