@@ -323,3 +323,6 @@ To understand the decision boundaries and identify where the fine-tuned model fa
 
 #### Deployment Summary
 The model is not yet ready for production deployment. While it meets our baseline accuracy goal and easily flags structured analytical essays, it cannot be trusted in a live community moderation tool until we stabilize the appreciation boundary and get its score up to our minimum 0.65 requirement.
+
+## Vedio Demonstration
+[View Video Presentation](https://www.loom.com/share/bf26797215ea4225a9d165d7e34d93f9)
